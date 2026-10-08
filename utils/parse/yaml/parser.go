@@ -23,12 +23,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-var vp = viper.New()
-
-func init() {
-	vp.SetConfigType("yaml")
-}
-
 // Parser properties转换器
 type Parser struct {
 }
@@ -44,7 +38,9 @@ func (d *Parser) Parse(configContent interface{}) (map[string]interface{}, error
 	}
 
 	buffer := bytes.NewBufferString(content)
-	// 使用viper解析
+	// 使用viper解析；每次新建实例，避免多个 client 并发 Parse 时共享状态被覆盖
+	vp := viper.New()
+	vp.SetConfigType("yaml")
 	err := vp.ReadConfig(buffer)
 	if err != nil {
 		return nil, err
